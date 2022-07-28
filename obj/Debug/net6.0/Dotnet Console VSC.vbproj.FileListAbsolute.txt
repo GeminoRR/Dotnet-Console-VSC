@@ -1,0 +1,15 @@
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\obj\Debug\net6.0\Dotnet Console VSC.vbproj.AssemblyReference.cache
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\obj\Debug\net6.0\Dotnet Console VSC.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\obj\Debug\net6.0\Dotnet Console VSC.AssemblyInfoInputs.cache
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\obj\Debug\net6.0\Dotnet Console VSC.AssemblyInfo.vb
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\obj\Debug\net6.0\Dotnet Console VSC.vbproj.CoreCompileInputs.cache
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\bin\Debug\net6.0\Dotnet Console VSC.exe
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\bin\Debug\net6.0\Dotnet Console VSC.deps.json
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\bin\Debug\net6.0\Dotnet Console VSC.runtimeconfig.json
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\bin\Debug\net6.0\Dotnet Console VSC.dll
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\bin\Debug\net6.0\ref\Dotnet Console VSC.dll
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\bin\Debug\net6.0\Dotnet Console VSC.pdb
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\obj\Debug\net6.0\Dotnet Console VSC.dll
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\obj\Debug\net6.0\ref\Dotnet Console VSC.dll
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\obj\Debug\net6.0\Dotnet Console VSC.pdb
+C:\Users\gemin\Documents\Projets\Applications\Dotnet Console VSC\obj\Debug\net6.0\Dotnet Console VSC.genruntimeconfig.cache
