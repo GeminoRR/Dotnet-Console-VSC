@@ -1,1 +1,6 @@
 puts "Hello world !"
+goto some_test
+
+some_test:
+    puts "Hello bob !"
+    goto some_test

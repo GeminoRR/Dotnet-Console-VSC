@@ -53,6 +53,7 @@ Module Program
         
         puts
         var
+        go_to
         setvar
         twoPoint
     End Enum
@@ -187,6 +188,9 @@ Module Program
                 while "abcdefghijklmnopkrstuvwxyzABCDEFGHIJKLMNOPKRSTUVWXYZ_".Contains(line(0))
                     word &= line(0)
                     line = line.Substring(1)
+                    if not line.Length > 0 then
+                        exit while
+                    end if
                 end while
 
                 word = word.ToLower()
@@ -196,6 +200,8 @@ Module Program
                     tokens.add(new token(tokenType.var))
                 elseif word = "set" then
                     tokens.add(new token(tokenType.setvar))
+                elseif word = "goto" then
+                    tokens.add(new token(tokenType.go_to))
                 else
                     tokens.add(new token(tokenType.text, word))
                 end if
@@ -244,6 +250,26 @@ Module Program
                 end if
                 Console.WriteLine(getStringValue(tokens(1), line))
             
+            Case tokenType.go_to
+                if not tokens.Count > 1 then
+                    pushError("Goto usage : goto [part_name]", line.linePosition, line.brut)
+                end if
+                if not tokens(1).type = tokenType.text then
+                    pushError("Goto usage : goto [part_name]", line.linePosition, line.brut)
+                end if
+                dim target as part = Nothing
+                For Each p As part In parts
+                    if p.name = tokens(1).value then
+                        target = p
+                        exit for
+                    end if
+                Next
+                if target is Nothing then
+                    pushError("Part """ & tokens(1).value & """ is not defined", line.linePosition, line.brut)
+                end if
+                executePart(target)
+                
+
             Case tokenType.var
                 if not tokens.Count > 1 then
                     'push puts usage error
