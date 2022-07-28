@@ -7,7 +7,8 @@ Module Program
 
         Public linePosition as Integer
         Public name as String
-        Public lines as new List(of line)
+        Public lines as new List(of action)
+        Public variables as new list(of variable)
 
         public sub new(byval name as String, byval linePosition as Integer)
             me.name = name
@@ -15,16 +16,20 @@ Module Program
         end sub
 
     End Class
-    Class line
+    Class action
 
-        Public tokens as List(of token)
+        Public tokens as new List(of token)
         Public linePosition as Integer
+        Public brut as String
+        Public parentPart as part
 
-        public sub new(byval tokens as List(of token), byval linePosition as Integer)
+        public sub new(byval tokens as List(of token), byval linePosition as Integer, byval brut as String, byref parentPart as part)
             For Each tok As token In tokens
                 me.tokens.add(tok)
             Next
-            me.linePosition = linePosition            
+            me.linePosition = linePosition
+            me.brut = brut
+            me.parentPart = parentPart
         end sub
 
     End Class
@@ -49,6 +54,7 @@ Module Program
         puts
         var
         setvar
+        twoPoint
     End Enum
 
     Class variable
@@ -83,7 +89,6 @@ Module Program
         'Variables
         dim lines as new List(of String)
         dim linesPositions as new list(of Integer)
-        dim tokens as new List(of List(of token))
 
         Try
             'Load code
@@ -107,19 +112,29 @@ Module Program
         
         'Tokenise the code
         dim currentPart as new part("main", -1)
-        For lineIndex As Integer = 0 to lines.count
+        For lineIndex As Integer = 0 to lines.count - 1
             dim line as String = lines(lineIndex)
-            if line.EndWith(":") Then
-
+            if line.EndsWith(":") Then
+                parts.add(currentPart)
+                dim tokens as list(of token) = lineToTokens(line)
+                if (not tokens.count = 2) or (not tokens(0).type = tokenType.text) Then
+                    pushError("Part definition should be writen like this : [part_name]:", linesPositions(lineIndex), line)
+                end if
+                currentPart = new part(tokens(0).value, linesPositions(lineIndex))
             else
-                tokens.Add(lineToTokens(line))
+                currentPart.lines.add(new action(lineToTokens(line), linesPositions(lineIndex), line, currentPart))
+            end if
+        Next
+        parts.add(currentPart)
+        
+        'Execute code
+        For Each p As part In parts
+            if p.name = "main"
+                executePart(p)
+                End
             end if
         Next
         
-        'Execute code
-        For Each line As List(of token) in tokens
-            executeLine(line)
-        Next
         
     End Sub
 
@@ -166,10 +181,10 @@ Module Program
                     End
                 end if
             
-            Elseif "abcdefghijklmnopkrstuvwxyzABCDEFGHIJKLMNOPKRSTUVWXYZ".Contains(currentChar) Then
+            Elseif "abcdefghijklmnopkrstuvwxyzABCDEFGHIJKLMNOPKRSTUVWXYZ_".Contains(currentChar) Then
 
                 dim word as String = currentChar
-                while "abcdefghijklmnopkrstuvwxyzABCDEFGHIJKLMNOPKRSTUVWXYZ".Contains(line(0))
+                while "abcdefghijklmnopkrstuvwxyzABCDEFGHIJKLMNOPKRSTUVWXYZ_".Contains(line(0))
                     word &= line(0)
                     line = line.Substring(1)
                 end while
@@ -188,6 +203,9 @@ Module Program
             Elseif currentChar = " " or currentChar = vbTab Then
                 Continue while
 
+            Elseif currentChar = ":" Then
+                tokens.add(new token(tokenType.twoPoint))
+
             Else
                 Console.WriteLine("Unknown character """ & currentChar & """")
                 Console.WriteLine(vbTab & line)
@@ -201,9 +219,19 @@ Module Program
 
     End Function
     
+    Sub executePart(byval p as part)
 
-    Sub executeLine(byval tokens as List(of token))
+        For Each line As action In p.lines
+            executeLine(line)
+        Next
+        
+    End Sub
     
+
+    Sub executeLine(byval line as action)
+    
+        dim tokens as list(of token) = line.tokens
+
         if not tokens.Count > 0 Then
             exit sub
         end if
@@ -212,9 +240,9 @@ Module Program
 
             Case tokenType.puts
                 if not tokens.Count > 1 then
-                    'push puts usage error
+                    pushError("Puts usage : puts [message]", line.linePosition, line.brut)
                 end if
-                Console.WriteLine(getStringValue(tokens(1)))
+                Console.WriteLine(getStringValue(tokens(1), line))
             
             Case tokenType.var
                 if not tokens.Count > 1 then
@@ -223,34 +251,52 @@ Module Program
                 
 
             case else
-                pushError("Line must start with a actions name")
+                pushError("Line must start with a actions name", line.linePosition, line.brut)
 
         End Select
         
 
     End Sub
+
+    Function getVariable(byval name as String, byref parentLine as action) As variable
+        
+        'Const
+        For Each var As variable In variables
+            if var.name = name then
+                return var
+            end if
+        Next
+
+        'Local
+        For Each var As variable In parentLine.parentPart.variables
+            if var.name = name then
+                return var
+            end if
+        Next
+
+        'No variable
+        pushError("Variable """ & name & """ if not defined", parentLine.linePosition, parentLine.brut)
+        Return Nothing
+        
+    End Function
     
-    Function getStringValue(byval tok as token) As String
+    
+    Function getStringValue(byval tok as token, byval parentLine as action) As String
         
         if tok.type = tokenType.str then
 
             return tok.value
 
         elseif tok.type = tokenType.text then
-            for Each var as variable in variables
-                if var.name = tok.value then
-                    if var.type = valueType.str Then
-                        return var.value
-                    else
-                        'push type error
-                    end if
-                end if
-            Next
-            'Push variable doesn't exist error
+            dim var as variable = getVariable(tok.value, parentLine)
+            if not var.type = valueType.str then
+                pushError("The variable is not a <string>", parentLine.linePosition, parentLine.brut)
+            end if
+            return var.value
         
         else
-            'push type error
-        
+            pushError("The <" & tok.type.ToString() & "> token doesn't contain any usable string", parentLine.linePosition, parentLine.brut)
+            return ""
         end if
 
     End Function
