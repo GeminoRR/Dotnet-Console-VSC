@@ -1,6 +1,4 @@
-puts "Hello world !"
-goto some_test
-
-some_test:
-    puts "Hello bob !"
-    goto some_test
+var name
+gets name "Username : "
+puts "Tu t'appelle :"
+puts name
